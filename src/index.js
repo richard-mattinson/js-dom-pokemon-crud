@@ -1,55 +1,97 @@
-const pokeForm = document.querySelector(".poke-form");
-const pokeList = document.querySelector(".poke-list");
+const pokeUrl = "http://localhost:3000/pokemons";
 
-function addPokemon(pokemon) {
-  const liEl = document.createElement("li");
-  const imgEl = document.createElement("img");
-  const h2El = document.createElement("h2");
+const nameInput = document.getElementById("nameInput");
+const imageUrlInput = document.getElementById("imageUrlInput");
+const submitButton = document.getElementById("submitButton");
+const pokeList = document.getElementById("pokeList");
 
-  liEl.classList.add("pokemon");
-  imgEl.src = pokemon.image;
+const renderSingleCard = () => {
+  fetch(pokeUrl)
+    .then((resp) => resp.json())
+    .then((data) => renderAllCards(data));
+};
 
-  h2El.innerText = pokemon.name;
+const renderAllCards = (data) => {
+  data.map((pokeData) => {
+    const pokeItem = document.createElement("li");
+    const pokeName = document.createElement("h2");
+    const pokeImage = document.createElement("img");
+    const deleteButton = document.createElement("button");
+    const likeButton = document.createElement("button");
 
-  liEl.append(imgEl, h2El);
-  pokeList.append(liEl);
-}
+    pokeItem.classList = "pokemon";
+    pokeImage.setAttribute("src", pokeData.image);
+    pokeName.innerText = pokeData.name;
+    deleteButton.innerHTML = "Delete";
+    likeButton.innerHTML = "Like";
 
-function addPokemons(pokemons) {
-  pokemons.forEach(pokemon => addPokemon(pokemon))
-}
+    if (pokeData.like === true) {
+      likeButton.style.backgroundColor = "red";
+      likeButton.style.color = "white";
+    } else {
+      likeButton.style.backgroundColor = "white";
+      likeButton.style.color = "black";
+    }
 
-function listenToAddPokemonForm() {
-  pokeForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const pokemon = {
-      name: pokeForm.name.value,
-      image: pokeForm.image.value
-    };
+    pokeItem.appendChild(pokeImage);
+    pokeItem.appendChild(pokeName);
+    pokeItem.appendChild(deleteButton);
+    pokeItem.appendChild(likeButton);
+    pokeList.appendChild(pokeItem);
 
-    // CREATE
-    // fetch("http://localhost:3000/pokemons", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify(pokemon)
-    // })
-    //   .then(res =>  res.json())
-    //   .then(pokemon => addPokemon(pokemon));
-    //   });
-
-    pokeForm.reset();
+    deleteButton.addEventListener("click", () => deletePokemon(pokeData.id));
+    likeButton.addEventListener("click", () =>
+      likePokemon(pokeData.id, pokeData.like)
+    );
   });
-}
+};
 
-function init() {
-  listenToAddPokemonForm();
+renderSingleCard();
 
-  // READ
-  // fetch("http://localhost:3000/pokemons")
-  //   .then(res => res.json());
-  //   .then(pokemons => addPokemons(pokemons));
-}
+const addNewPokemon = (newName, newImageUrl) => {
+  fetch(pokeUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: newName,
+      image: newImageUrl
+    }),
+  });
+  renderSingleCard();
+};
 
-init();
+submitButton.addEventListener("click", () =>
+  addNewPokemon(nameInput.value, imageUrlInput.value)
+);
+
+const deletePokemon = (id) => {
+  fetch(`${pokeUrl}/${id}`, {
+    method: "DELETE",
+  });
+};
+
+const likePokemon = (id, like) => {
+  if (like === true) {
+    fetch(`${pokeUrl}/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        like: false
+      }),
+    });
+  } else {
+    fetch(`${pokeUrl}/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        like: true
+      }),
+    });
+  }
+};

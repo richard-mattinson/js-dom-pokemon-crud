@@ -3,23 +3,23 @@
   <head>
     <title>PokeCRUD</title>
     <meta charset="UTF-8" />
-    <script defer src="src/index.js"></script>
     <link rel="stylesheet" href="src/styles.css" />
+    <script defer src="src/index.js"></script>
   </head>
   <body>
     <h1 class="title">PokeCRUD</h1>
     <form class="poke-form">
       <label>
         Name:
-        <input type="text" name="name" required />
+        <input id="nameInput" type="text" name="name" required />
       </label>
       <label>
         Image URL:
-        <input type="text" name="image" required />
+        <input id="imageUrlInput" type="text" name="image" required />
       </label>
-      <input type="submit" value="Add Pokémon" />
+      <input id="submitButton" type="submit" value="Add Pokémon" />
     </form>
 
-    <ul class="poke-list"></ul>
+    <ul id="pokeList" class="poke-list"></ul>
   </body>
 </html>
